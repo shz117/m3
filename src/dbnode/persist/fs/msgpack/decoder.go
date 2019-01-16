@@ -557,6 +557,7 @@ func (dec *Decoder) decodeFloat64() float64 {
 	return value
 }
 
+// Should only be called if dec.byteReader != nil.
 func (dec *Decoder) decodeBytes() ([]byte, int, int) {
 	if dec.err != nil {
 		return nil, -1, -1
@@ -565,9 +566,6 @@ func (dec *Decoder) decodeBytes() ([]byte, int, int) {
 	// API which allocates a new slice under the hood, otherwise we simply locate the byte
 	// slice as part of the encoded byte stream and return it
 	var value []byte
-	var byteProvider ByteStream
-	byteProvider = dec.reader.(ByteStream)
-
 	if dec.allocDecodedBytes {
 		value, dec.err = dec.dec.DecodeBytes()
 		return value, -1, -1
@@ -575,9 +573,9 @@ func (dec *Decoder) decodeBytes() ([]byte, int, int) {
 
 	var (
 		bytesLen     = dec.decodeBytesLen()
-		backingBytes = byteProvider.Bytes()
+		backingBytes = dec.byteReader.Bytes()
 		numBytes     = len(backingBytes)
-		currPos      = int(int64(numBytes) - byteProvider.Remaining())
+		currPos      = int(int64(numBytes) - dec.byteReader.Remaining())
 	)
 
 	if dec.err != nil {
@@ -622,11 +620,13 @@ func (dec *Decoder) decodeCheckedBytes() checked.Bytes {
 		dec.err = fmt.Errorf(
 			"tried to decode checked bytes of length: %d, but read: %d",
 			bytesLen, n)
+		checkedBytes.DecRef()
 		checkedBytes.Finalize()
 		return nil
 	}
 	if err != nil {
 		dec.err = err
+		checkedBytes.DecRef()
 		checkedBytes.Finalize()
 		return nil
 	}
