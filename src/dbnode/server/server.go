@@ -297,25 +297,6 @@ func Run(runOpts RunOptions) {
 		poolOptions(policy.TagDecoderPool, scope.SubScope("tag-decoder-pool")))
 	tagDecoderPool.Init()
 
-	fsopts := fs.NewOptions().
-		SetClockOptions(opts.ClockOptions()).
-		SetInstrumentOptions(opts.InstrumentOptions().
-			SetMetricsScope(scope.SubScope("database.fs"))).
-		SetFilePathPrefix(cfg.Filesystem.FilePathPrefix).
-		SetNewFileMode(newFileMode).
-		SetNewDirectoryMode(newDirectoryMode).
-		SetWriterBufferSize(cfg.Filesystem.WriteBufferSize).
-		SetDataReaderBufferSize(cfg.Filesystem.DataReadBufferSize).
-		SetInfoReaderBufferSize(cfg.Filesystem.InfoReadBufferSize).
-		SetSeekReaderBufferSize(cfg.Filesystem.SeekReadBufferSize).
-		SetMmapEnableHugeTLB(shouldUseHugeTLB).
-		SetMmapHugeTLBThreshold(mmapCfg.HugeTLB.Threshold).
-		SetRuntimeOptionsManager(runtimeOptsMgr).
-		SetTagEncoderPool(tagEncoderPool).
-		SetTagDecoderPool(tagDecoderPool).
-		SetForceIndexSummariesMmapMemory(cfg.Filesystem.ForceIndexSummariesMmapMemory).
-		SetForceBloomFilterMmapMemory(cfg.Filesystem.ForceBloomFilterMmapMemory)
-
 	var commitLogQueueSize int
 	specified := cfg.CommitLog.Queue.Size
 	switch cfg.CommitLog.Queue.CalculationType {
@@ -344,6 +325,35 @@ func Run(runOpts RunOptions) {
 		commitLogQueueChannelSize = int(float64(commitLogQueueSize) / commitlog.MaximumQueueSizeQueueChannelSizeRatio)
 	}
 
+	// Set the series cache policy
+	seriesCachePolicy := cfg.Cache.SeriesConfiguration().Policy
+	opts = opts.SetSeriesCachePolicy(seriesCachePolicy)
+
+	// Apply pooling options
+	opts = withEncodingAndPoolingOptions(cfg, logger, opts, cfg.PoolingPolicy)
+
+	fsopts := fs.NewOptions().
+		SetClockOptions(opts.ClockOptions()).
+		SetInstrumentOptions(opts.InstrumentOptions().
+			SetMetricsScope(scope.SubScope("database.fs"))).
+		SetFilePathPrefix(cfg.Filesystem.FilePathPrefix).
+		SetNewFileMode(newFileMode).
+		SetNewDirectoryMode(newDirectoryMode).
+		SetWriterBufferSize(cfg.Filesystem.WriteBufferSize).
+		SetDataReaderBufferSize(cfg.Filesystem.DataReadBufferSize).
+		SetInfoReaderBufferSize(cfg.Filesystem.InfoReadBufferSize).
+		SetSeekReaderBufferSize(cfg.Filesystem.SeekReadBufferSize).
+		SetMmapEnableHugeTLB(shouldUseHugeTLB).
+		SetMmapHugeTLBThreshold(mmapCfg.HugeTLB.Threshold).
+		SetRuntimeOptionsManager(runtimeOptsMgr).
+		SetTagEncoderPool(tagEncoderPool).
+		SetTagDecoderPool(tagDecoderPool).
+		SetForceIndexSummariesMmapMemory(cfg.Filesystem.ForceIndexSummariesMmapMemory).
+		SetForceBloomFilterMmapMemory(cfg.Filesystem.ForceBloomFilterMmapMemory)
+
+	fsopts = fsopts.SetDecodingOptions(fsopts.DecodingOptions().
+		SetCheckedBytesPool(opts.BytesPool()))
+
 	opts = opts.SetCommitLogOptions(opts.CommitLogOptions().
 		SetInstrumentOptions(opts.InstrumentOptions()).
 		SetFilesystemOptions(fsopts).
@@ -353,13 +363,6 @@ func Run(runOpts RunOptions) {
 		SetBacklogQueueSize(commitLogQueueSize).
 		SetBacklogQueueChannelSize(commitLogQueueChannelSize).
 		SetBlockSize(cfg.CommitLog.BlockSize))
-
-	// Set the series cache policy
-	seriesCachePolicy := cfg.Cache.SeriesConfiguration().Policy
-	opts = opts.SetSeriesCachePolicy(seriesCachePolicy)
-
-	// Apply pooling options
-	opts = withEncodingAndPoolingOptions(cfg, logger, opts, cfg.PoolingPolicy)
 
 	// Setup the block retriever
 	switch seriesCachePolicy {
