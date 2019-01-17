@@ -325,11 +325,11 @@ func Run(runOpts RunOptions) {
 		commitLogQueueChannelSize = int(float64(commitLogQueueSize) / commitlog.MaximumQueueSizeQueueChannelSizeRatio)
 	}
 
-	// Set the series cache policy
+	// Set the series cache policy.
 	seriesCachePolicy := cfg.Cache.SeriesConfiguration().Policy
 	opts = opts.SetSeriesCachePolicy(seriesCachePolicy)
 
-	// Apply pooling options
+	// Apply pooling options.
 	opts = withEncodingAndPoolingOptions(cfg, logger, opts, cfg.PoolingPolicy)
 
 	fsopts := fs.NewOptions().
