@@ -168,8 +168,6 @@ func (m *flushManager) Flush(
 		m.lastSuccessfulSnapshotStartTime = tickStart
 	}
 
-	// flush index data
-	// create index-flusher
 	indexFlush, err := m.pm.StartIndexPersist()
 	if err != nil {
 		multiErr = multiErr.Add(err)
@@ -187,7 +185,6 @@ func (m *flushManager) Flush(
 		}
 		multiErr = multiErr.Add(ns.FlushIndex(indexFlush))
 	}
-	// mark index flush finished
 	multiErr = multiErr.Add(indexFlush.DoneIndex())
 
 	return multiErr.FinalError()
