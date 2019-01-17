@@ -147,20 +147,26 @@ func (m *flushManager) Flush(
 		multiErr = multiErr.Add(err)
 	}
 
-	rotatedCommitlogID, err := m.commitlog.RotateLogs()
-	if err != nil {
-		return fmt.Errorf("error rotating commitlog in mediator tick: %v", err)
-	}
-	err = m.snapshot(namespaces, tickStart, rotatedCommitlogID)
-	if err != nil {
-		multiErr = multiErr.Add(err)
-	}
+	// We need to make decisions about whether to snapshot or not as an all-or-nothing decision,
+	// we can't decide on a namespace-by-namespace or shard-by-shard basis like we used to because
+	// the new model is that once a snapshot has completed, then all data that had been received by
+	// the dbnode up until the snapshot "start time" has been persisted durably.
+	shouldSnapshot := tickStart.Sub(m.lastSuccessfulSnapshotStartTime) >= m.opts.MinimumSnapshotInterval()
+	if shouldSnapshot {
+		// Only rotate the commitlog if we're also gonna perform a snapshot, otherwise its just a waste
+		// of resources since we won't be able to cleanup the previous commitlog file until a snapshot
+		// completes.
+		rotatedCommitlogID, err := m.commitlog.RotateLogs()
+		if err != nil {
+			return fmt.Errorf("error rotating commitlog in mediator tick: %v", err)
+		}
 
-	// if shouldSnapshot {
-	// 	if multiErr.NumErrors() == 0 {
-	m.lastSuccessfulSnapshotStartTime = tickStart
-	// 	}
-	// }
+		err = m.snapshot(namespaces, tickStart, rotatedCommitlogID)
+		if err != nil {
+			multiErr = multiErr.Add(err)
+		}
+		m.lastSuccessfulSnapshotStartTime = tickStart
+	}
 
 	// flush index data
 	// create index-flusher
