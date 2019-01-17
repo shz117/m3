@@ -93,7 +93,7 @@ func TestIndexInfoRoundtrip(t *testing.T) {
 		dec = NewDecoder(nil)
 	)
 	require.NoError(t, enc.EncodeIndexInfo(testIndexInfo))
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	res, err := dec.DecodeIndexInfo()
 	require.NoError(t, err)
 	require.Equal(t, testIndexInfo, res)
@@ -127,7 +127,7 @@ func TestIndexInfoRoundTripBackwardsCompatibilityV1(t *testing.T) {
 	}()
 
 	enc.EncodeIndexInfo(testIndexInfo)
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	res, err := dec.DecodeIndexInfo()
 	require.NoError(t, err)
 	require.Equal(t, testIndexInfo, res)
@@ -163,7 +163,7 @@ func TestIndexInfoRoundTripForwardsCompatibilityV2(t *testing.T) {
 		testIndexInfo.SnapshotID = currSnapshotID
 	}()
 
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	res, err := dec.DecodeIndexInfo()
 	require.NoError(t, err)
 	require.Equal(t, testIndexInfo, res)
@@ -196,7 +196,7 @@ func TestIndexInfoRoundTripBackwardsCompatibilityV2(t *testing.T) {
 	}()
 
 	enc.EncodeIndexInfo(testIndexInfo)
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	res, err := dec.DecodeIndexInfo()
 	require.NoError(t, err)
 	require.Equal(t, testIndexInfo, res)
@@ -224,7 +224,7 @@ func TestIndexInfoRoundTripForwardsCompatibilityV3(t *testing.T) {
 		testIndexInfo.SnapshotID = currSnapshotID
 	}()
 
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	res, err := dec.DecodeIndexInfo()
 	require.NoError(t, err)
 	require.Equal(t, testIndexInfo, res)
@@ -236,7 +236,7 @@ func TestIndexEntryRoundtrip(t *testing.T) {
 		dec = NewDecoder(nil)
 	)
 	require.NoError(t, enc.EncodeIndexEntry(testIndexEntry))
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	res, err := dec.DecodeIndexEntry()
 	require.NoError(t, err)
 	require.Equal(t, testIndexEntry, res)
@@ -261,7 +261,7 @@ func TestIndexEntryRoundTripBackwardsCompatibilityV1(t *testing.T) {
 	}()
 
 	enc.EncodeIndexEntry(testIndexEntry)
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	res, err := dec.DecodeIndexEntry()
 	require.NoError(t, err)
 	require.Equal(t, testIndexEntry, res)
@@ -289,7 +289,7 @@ func TestIndexEntryRoundTripForwardsCompatibilityV2(t *testing.T) {
 		testIndexEntry.EncodedTags = currEncodedTags
 	}()
 
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	res, err := dec.DecodeIndexEntry()
 	require.NoError(t, err)
 	require.Equal(t, testIndexEntry, res)
@@ -301,7 +301,7 @@ func TestIndexSummaryRoundtrip(t *testing.T) {
 		dec = NewDecoder(nil)
 	)
 	require.NoError(t, enc.EncodeIndexSummary(testIndexSummary))
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	res, _, err := dec.DecodeIndexSummary()
 	require.NoError(t, err)
 	require.Equal(t, testIndexSummary, res)
@@ -313,7 +313,7 @@ func TestLogInfoRoundtrip(t *testing.T) {
 		dec = NewDecoder(nil)
 	)
 	require.NoError(t, enc.EncodeLogInfo(testLogInfo))
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	res, err := dec.DecodeLogInfo()
 	require.NoError(t, err)
 	require.Equal(t, testLogInfo, res)
@@ -325,7 +325,7 @@ func TestLogEntryRoundtrip(t *testing.T) {
 		dec = NewDecoder(nil)
 	)
 	require.NoError(t, enc.EncodeLogEntry(testLogEntry))
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	res, err := dec.DecodeLogEntry()
 	require.NoError(t, err)
 	require.Equal(t, testLogEntry, res)
@@ -337,7 +337,7 @@ func TestLogEntryRoundtripUniqueIndexAndRemaining(t *testing.T) {
 		dec = NewDecoder(nil)
 	)
 	require.NoError(t, enc.EncodeLogEntry(testLogEntry))
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	create, idx, err := dec.DecodeLogEntryUniqueIndex()
 	require.NoError(t, err)
 
@@ -354,7 +354,7 @@ func TestLogMetadataRoundtrip(t *testing.T) {
 		dec = NewDecoder(nil)
 	)
 	require.NoError(t, enc.EncodeLogMetadata(testLogMetadata))
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	res, err := dec.DecodeLogMetadata()
 	require.NoError(t, err)
 	require.Equal(t, testLogMetadata, res)
@@ -390,7 +390,7 @@ func TestMultiTypeRoundtripStress(t *testing.T) {
 		}
 	}
 
-	dec.Reset(NewDecoderStream(enc.Bytes()))
+	dec.Reset(NewByteDecoderStream(enc.Bytes()))
 	for i := 0; i < iter; i++ {
 		switch i % 5 {
 		case 0:
