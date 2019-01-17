@@ -396,20 +396,6 @@ func (mr *MockDataFileSetSeekerMockRecorder) ConcurrentIDBloomFilter() *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConcurrentIDBloomFilter", reflect.TypeOf((*MockDataFileSetSeeker)(nil).ConcurrentIDBloomFilter))
 }
 
-// Entries mocks base method
-func (m *MockDataFileSetSeeker) Entries() int {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Entries")
-	ret0, _ := ret[0].(int)
-	return ret0
-}
-
-// Entries indicates an expected call of Entries
-func (mr *MockDataFileSetSeekerMockRecorder) Entries() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Entries", reflect.TypeOf((*MockDataFileSetSeeker)(nil).Entries))
-}
-
 // Open mocks base method
 func (m *MockDataFileSetSeeker) Open(arg0 ident.ID, arg1 uint32, arg2 time.Time, arg3 ReusableSeekerResources) error {
 	m.ctrl.T.Helper()
