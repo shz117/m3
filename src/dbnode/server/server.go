@@ -351,9 +351,6 @@ func Run(runOpts RunOptions) {
 		SetForceIndexSummariesMmapMemory(cfg.Filesystem.ForceIndexSummariesMmapMemory).
 		SetForceBloomFilterMmapMemory(cfg.Filesystem.ForceBloomFilterMmapMemory)
 
-	fsopts = fsopts.SetDecodingOptions(fsopts.DecodingOptions().
-		SetCheckedBytesPool(opts.BytesPool()))
-
 	opts = opts.SetCommitLogOptions(opts.CommitLogOptions().
 		SetInstrumentOptions(opts.InstrumentOptions()).
 		SetFilesystemOptions(fsopts).
