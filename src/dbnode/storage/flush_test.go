@@ -40,8 +40,10 @@ import (
 )
 
 var (
-	// TODO: Fill this in
-	testCommitlogFile = persist.CommitlogFile{}
+	testCommitlogFile = persist.CommitlogFile{
+		FilePath: "/var/lib/m3db/commitlogs/commitlog-0-0.db",
+		Index:    0,
+	}
 )
 
 func newMultipleFlushManagerNeedsFlush(t *testing.T, ctrl *gomock.Controller) (

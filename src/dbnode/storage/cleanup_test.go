@@ -507,7 +507,6 @@ func timeFor(s int64) time.Time {
 	return time.Unix(s, 0)
 }
 
-// TODO: Delete if unused
 type fakeActiveLogs struct {
 	activeLogs persist.CommitlogFiles
 }
