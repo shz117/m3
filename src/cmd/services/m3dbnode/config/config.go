@@ -302,6 +302,7 @@ func NewEtcdEmbedConfig(cfg DBConfiguration) (*embed.Config, error) {
 	copySecurityDetails(&newKVCfg.PeerTLSInfo, &kvCfg.PeerTransportSecurity)
 	newKVCfg.ClientAutoTLS = kvCfg.ClientTransportSecurity.AutoTLS
 	newKVCfg.PeerAutoTLS = kvCfg.PeerTransportSecurity.AutoTLS
+	newKVCfg.ClusterState = embed.ClusterStateFlagExisting
 
 	return newKVCfg, nil
 }
