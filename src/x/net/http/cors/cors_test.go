@@ -48,23 +48,23 @@ import (
 func TestCORSInfo(t *testing.T) {
 	tests := []struct {
 		s     string
-		winfo CORSInfo
+		winfo Info
 		ws    string
 	}{
-		{"", CORSInfo{}, ""},
-		{"http://127.0.0.1", CORSInfo{"http://127.0.0.1": true}, "http://127.0.0.1"},
-		{"*", CORSInfo{"*": true}, "*"},
+		{"", Info{}, ""},
+		{"http://127.0.0.1", Info{"http://127.0.0.1": true}, "http://127.0.0.1"},
+		{"*", Info{"*": true}, "*"},
 		// with space around
-		{" http://127.0.0.1 ", CORSInfo{"http://127.0.0.1": true}, "http://127.0.0.1"},
+		{" http://127.0.0.1 ", Info{"http://127.0.0.1": true}, "http://127.0.0.1"},
 		// multiple addrs
 		{
 			"http://127.0.0.1,http://127.0.0.2",
-			CORSInfo{"http://127.0.0.1": true, "http://127.0.0.2": true},
+			Info{"http://127.0.0.1": true, "http://127.0.0.2": true},
 			"http://127.0.0.1,http://127.0.0.2",
 		},
 	}
 	for i, tt := range tests {
-		info := CORSInfo{}
+		info := Info{}
 		if err := info.Set(tt.s); err != nil {
 			t.Errorf("#%d: set error = %v, want nil", i, err)
 		}
@@ -91,7 +91,7 @@ func TestCORSInfoOriginAllowed(t *testing.T) {
 		{"*", "http://127.0.0.1", true},
 	}
 	for i, tt := range tests {
-		info := CORSInfo{}
+		info := Info{}
 		if err := info.Set(tt.set); err != nil {
 			t.Errorf("#%d: set error = %v, want nil", i, err)
 		}
@@ -102,11 +102,11 @@ func TestCORSInfoOriginAllowed(t *testing.T) {
 }
 
 func TestCORSHandler(t *testing.T) {
-	info := &CORSInfo{}
+	info := &Info{}
 	if err := info.Set("http://127.0.0.1,http://127.0.0.2"); err != nil {
 		t.Fatalf("unexpected set error: %v", err)
 	}
-	h := &CORSHandler{
+	h := &Handler{
 		Handler: http.NotFoundHandler(),
 		Info:    info,
 	}

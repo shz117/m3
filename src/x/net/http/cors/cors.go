@@ -47,10 +47,11 @@ import (
 	"strings"
 )
 
-type CORSInfo map[string]bool
+// Info represents a set of allowed origins.
+type Info map[string]bool
 
 // Set implements the flag.Value interface to allow users to define a list of CORS origins
-func (ci *CORSInfo) Set(s string) error {
+func (ci *Info) Set(s string) error {
 	m := make(map[string]bool)
 	for _, v := range strings.Split(s, ",") {
 		v = strings.TrimSpace(v)
@@ -65,11 +66,11 @@ func (ci *CORSInfo) Set(s string) error {
 		m[v] = true
 
 	}
-	*ci = CORSInfo(m)
+	*ci = Info(m)
 	return nil
 }
 
-func (ci *CORSInfo) String() string {
+func (ci *Info) String() string {
 	o := make([]string, 0)
 	for k := range *ci {
 		o = append(o, k)
@@ -79,17 +80,19 @@ func (ci *CORSInfo) String() string {
 }
 
 // OriginAllowed determines whether the server will allow a given CORS origin.
-func (c CORSInfo) OriginAllowed(origin string) bool {
-	return c["*"] || c[origin]
+func (ci Info) OriginAllowed(origin string) bool {
+	return ci["*"] || ci[origin]
 }
 
-type CORSHandler struct {
+// Handler wraps an http.Handler instance to provide configurable CORS support. CORS headers will be added to all
+// responses.
+type Handler struct {
 	Handler http.Handler
-	Info    *CORSInfo
+	Info    *Info
 }
 
 // addHeader adds the correct cors headers given an origin
-func (h *CORSHandler) addHeader(w http.ResponseWriter, origin string) {
+func (h *Handler) addHeader(w http.ResponseWriter, origin string) {
 	w.Header().Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Add("Access-Control-Allow-Origin", origin)
 	w.Header().Add("Access-Control-Allow-Headers", "accept, content-type, authorization")
@@ -97,7 +100,7 @@ func (h *CORSHandler) addHeader(w http.ResponseWriter, origin string) {
 
 // ServeHTTP adds the correct CORS headers based on the origin and returns immediately
 // with a 200 OK if the method is OPTIONS.
-func (h *CORSHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// Write CORS header.
 	if h.Info.OriginAllowed("*") {
 		h.addHeader(w, "*")
