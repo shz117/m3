@@ -208,7 +208,7 @@ func Run(runOpts RunOptions) {
 		defer cleanup()
 	}
 
-	engine := executor.NewEngine(backendStorage, scope.SubScope("engine"))
+	engine := executor.NewEngine(backendStorage, scope.SubScope("engine"), cfg.LookbackDuration)
 
 	promDownsamplerAndWriter := ingest.NewDownsamplerAndWriter(backendStorage, downsampler)
 	handler, err := httpd.NewHandler(promDownsamplerAndWriter, tagOptions, engine,
@@ -619,6 +619,7 @@ func newStorages(
 		readWorkerPool,
 		writeWorkerPool,
 		tagOptions,
+		cfg.LookbackDuration,
 	)
 	stores := []storage.Storage{localStorage}
 	remoteEnabled := false
