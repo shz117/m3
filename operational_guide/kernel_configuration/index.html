@@ -653,6 +653,18 @@
   </li>
 
         
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../how_to/query/" title="M3Query" class="md-nav__link">
+      M3Query
+    </a>
+  </li>
+
+        
       </ul>
     </nav>
   </li>
@@ -919,9 +931,9 @@
                 <h1 id="kernel-configuration">Kernel Configuration</h1>
 <p>This document lists the Kernel tweaks M3DB needs to run well.</p>
 <h2 id="vmmax_map_count">vm.max_map_count</h2>
-<p>M3DB uses a lot of mmap-ed files for performance, as a result, you might need to bump <code>vm.max_map_count</code>. We suggest setting this value to <code>262144</code>, so you don’t have to come back and debug issues later.</p>
+<p>M3DB uses a lot of mmap-ed files for performance, as a result, you might need to bump <code>vm.max_map_count</code>. We suggest setting this value to <code>3000000</code>, so you don’t have to come back and debug issues later.</p>
 <p>On Linux, you can increase the limits by running the following command as root:</p>
-<pre><code>sysctl -w vm.max_map_count=262144
+<pre><code>sysctl -w vm.max_map_count=3000000
 </code></pre>
 
 <p>To set this value permanently, update the <code>vm.max_map_count</code> setting in <code>/etc/sysctl.conf</code>.</p>
